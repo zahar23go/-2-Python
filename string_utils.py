@@ -8,7 +8,7 @@
             string = string.removeprefix(whitespace)
         return string
 
-    def contains(self, string: str, symbol: str) -> bool:
+    def contains(self, string: str, symbol: str) -> bool:    
         res = False
         try:
             res = string.index(symbol) > -1
@@ -20,3 +20,7 @@
         if self.contains(string, symbol):
             string = string.replace(symbol, "")
         return string
+    
+    def reverse_string(self, string: str) -> str:
+        """Возвращает строку в обратном порядке."""
+        return string[::-1]
