@@ -1,7 +1,7 @@
-# task1.py - Урок 5, задание 1
+﻿# task1.py - РЈСЂРѕРє 5, Р·Р°РґР°РЅРёРµ 1
 from selenium import webdriver
 
 driver = webdriver.Chrome()
 driver.get("https://www.google.com")
-print("Страница Google открыта")
+print("РЎС‚СЂР°РЅРёС†Р° Google РѕС‚РєСЂС‹С‚Р°")
 driver.quit()
