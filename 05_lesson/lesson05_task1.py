@@ -1,4 +1,4 @@
-﻿"""
+"""
 Exercise 1. Click button with CSS-class
 URL: http://uitestingplayground.com/classattr
 """

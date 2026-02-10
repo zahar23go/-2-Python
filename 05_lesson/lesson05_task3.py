@@ -1,4 +1,4 @@
-﻿"""
+"""
 Exercise 3. Input field
 URL: http://the-internet.herokuapp.com/inputs
 """

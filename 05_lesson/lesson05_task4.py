@@ -1,4 +1,4 @@
-﻿"""
+"""
 Exercise 4. Login form
 URL: http://the-internet.herokuapp.com/login
 """

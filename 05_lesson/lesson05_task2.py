@@ -1,4 +1,4 @@
-﻿"""
+"""
 Exercise 2. Click button without ID
 URL: http://uitestingplayground.com/dynamicid
 """
