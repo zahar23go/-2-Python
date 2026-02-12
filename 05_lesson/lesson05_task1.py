@@ -1,32 +1,32 @@
+"""
+Exercise 1. Click button with CSS-class
+URL: http://uitestingplayground.com/classattr
+"""
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
 import time
 
-for i in range(3):
-    print(f"\n{'='*40}")
-    print(f"ЗАПУСК {i+1}")
-    print(f"{'='*40}")
-    
-    driver = webdriver.Chrome()
-    
-    try:
-        driver.get("https://demoqa.com/alerts")
-        
-        target_button = driver.find_element(
-            By.XPATH,
-            "//button[contains(concat(' ', normalize-space(@class), ' '), ' btn-primary ')]"
-        )
-        
-        target_button.click()
-        time.sleep(1)
-        alert = driver.switch_to.alert
-        alert.accept()
-        print(f"Запуск {i+1}: Успех")
-            
-    except Exception as e:
-        print(f"Запуск {i+1}: Ошибка - {e}")
-        
-    finally:
-        driver.quit()
+service = Service(ChromeDriverManager().install())
+driver = webdriver.Chrome(service=service)
 
-print("\nВсе 3 запуска завершены!")
+try:
+    driver.get("http://uitestingplayground.com/classattr")
+    time.sleep(2)
+
+    blue_button = driver.find_element(By.CLASS_NAME, "btn-primary")
+    blue_button.click()
+    print("Click on blue button done")
+    time.sleep(2)
+
+    driver.switch_to.alert.accept()
+    print("Popup closed")
+
+    print("Task 1 completed successfully!")
+
+except Exception as e:
+    print(f"Error: {e}")
+
+finally:
+    driver.quit()
