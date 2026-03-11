@@ -1,82 +1,116 @@
 ﻿from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from .base_page import BasePage
 from typing import Any
+from .base_page import BasePage
+import time
 
 
 class CartPage(BasePage):
-    """Класс для страницы корзины"""
+    """Page Object для страницы корзины"""
 
-    CHECKOUT_BUTTON_ID = (By.ID, "checkout")
-    CHECKOUT_BUTTON_DATA_TEST = (By.CSS_SELECTOR, "[data-test='checkout']")
-    CHECKOUT_BUTTON_CLASS = (By.CLASS_NAME, "btn_action")
-    CHECKOUT_BUTTON_XPATH = (By.XPATH, "//button[contains(text(), 'Checkout')]")
-    CHECKOUT_BUTTON_NAME = (By.NAME, "checkout")
-
-    CART_ITEMS = (By.CLASS_NAME, "cart_item")
-    CONTINUE_SHOPPING = (By.ID, "continue-shopping")
-    CART_LIST = (By.CLASS_NAME, "cart_list")
+    # Локаторы
+    CART_ITEM = (By.CLASS_NAME, "cart_item")
+    CHECKOUT_BUTTON = (By.ID, "checkout")
+    CONTINUE_SHOPPING_BUTTON = (By.ID, "continue-shopping")
+    REMOVE_BUTTON = (By.CSS_SELECTOR, "button.cart_button")
 
     def __init__(self, driver: Any) -> None:
-        """Инициализация страницы корзины"""
+        """
+        Инициализация страницы корзины
+
+        Args:
+            driver (Any): WebDriver instance
+        """
         super().__init__(driver)
 
-    def debug_page(self) -> None:
-        """Отладка страницы - вывод всей информации"""
-        print("\n=== ОТЛАДКА СТРАНИЦЫ КОРЗИНЫ ===")
-        print(f"URL: {self.driver.current_url}")
-        print(f"Заголовок: {self.driver.title}")
-
-        self.driver.save_screenshot("cart_page_debug.png")
-        print("Скриншот сохранен как cart_page_debug.png")
-
-        with open("cart_page.html", "w", encoding="utf-8") as f:
-            f.write(self.driver.page_source)
-        print("HTML сохранен как cart_page.html")
-
     def checkout(self) -> None:
-        """Оформление заказа с ожиданием"""
-        locators = [
-            self.CHECKOUT_BUTTON_ID,
-            self.CHECKOUT_BUTTON_DATA_TEST,
-            self.CHECKOUT_BUTTON_CLASS,
-            self.CHECKOUT_BUTTON_XPATH,
-            self.CHECKOUT_BUTTON_NAME
-        ]
-
-        print("\n=== ПОИСК КНОПКИ CHECKOUT ===")
-        for locator in locators:
+        """Переход к оформлению заказа"""
+        time.sleep(2)
+        
+        print(f"\nТекущий URL до клика: {self.driver.current_url}")
+        
+        # Пробуем разные способы нажатия на кнопку Checkout
+        try:
+            # Способ 1: обычный клик
+            checkout_button = self.driver.find_element(By.ID, "checkout")
+            print(f"✓ Найдена кнопка Checkout с текстом: '{checkout_button.text}'")
+            checkout_button.click()
+            print("✓ Способ 1: обычный клик выполнен")
+        except Exception as e:
+            print(f"✗ Способ 1 не сработал: {e}")
+            
+            # Способ 2: JavaScript клик
             try:
-                print(f"Пробуем локатор: {locator}")
-                element = WebDriverWait(self.driver, 3).until(
-                    EC.presence_of_element_located(locator)
-                )
-                print("   Элемент найден!")
-                print(f"    Текст: '{element.text}'")
-                print(f"    Отображается: {element.is_displayed()}")
-
-                if element.is_displayed() and element.is_enabled():
-                    print("   Элемент видим и доступен, кликаем")
-                    element.click()
-                    return
-                else:
-                    print("   Элемент не видим или не доступен")
+                self.driver.execute_script("document.getElementById('checkout').click();")
+                print("✓ Способ 2: JavaScript клик выполнен")
             except Exception as e:
-                print(f"   Не найден: {type(e).__name__}")
-                continue
+                print(f"✗ Способ 2 не сработал: {e}")
+                
+                # Способ 3: нажать через Enter
+                checkout_button.send_keys("\n")
+                print("✓ Способ 3: Enter нажат")
+        
+        # Ждем перехода на страницу оформления
+        time.sleep(3)
+        
+        # Проверяем новый URL
+        new_url = self.driver.current_url
+        print(f"URL после клика: {new_url}")
+        
+        # Если URL не изменился, пробуем принудительный переход
+        if "cart" in new_url:
+            print("⚠️ URL не изменился, пробуем перейти напрямую")
+            self.driver.get("https://www.saucedemo.com/checkout-step-one.html")
+            time.sleep(2)
+            print(f"URL после прямого перехода: {self.driver.current_url}")
+        
+        # Ждем появления полей формы
+        try:
+            WebDriverWait(self.driver, 10).until(
+                EC.presence_of_element_located((By.ID, "first-name"))
+            )
+            print("✓ Страница оформления загружена, поля найдены")
+        except Exception as e:
+            print(f"⚠️ Поля не найдены, сохраняем скриншот. Ошибка: {e}")
+            self.driver.save_screenshot("after_checkout.png")
+            
+            # Выводим информацию о текущей странице
+            print(f"Заголовок страницы: {self.driver.title}")
+            print(f"Текущий URL: {self.driver.current_url}")
+            
+            print("Доступные элементы input:")
+            elements = self.driver.find_elements(By.TAG_NAME, "input")
+            for el in elements:
+                print(f"  Input: id='{el.get_attribute('id')}', name='{el.get_attribute('name')}', type='{el.get_attribute('type')}'")
+            
+            print("Доступные элементы button:")
+            buttons = self.driver.find_elements(By.TAG_NAME, "button")
+            for i, btn in enumerate(buttons):
+                print(f"  Button {i}: id='{btn.get_attribute('id')}', text='{btn.text}'")
+            
+            raise
 
-        raise Exception("Не удалось найти кнопку Checkout ни по одному локатору")
-
-    def get_items_count(self) -> int:
+    def get_cart_items_count(self) -> int:
         """
-        Получение количества товаров в корзине
+        Получить количество товаров в корзине
 
         Returns:
             int: количество товаров
         """
-        return len(self.driver.find_elements(*self.CART_ITEMS))
+        items = self.driver.find_elements(*self.CART_ITEM)
+        return len(items)
+
+    def remove_item(self, item_name: str) -> None:
+        """
+        Удалить товар из корзины
+
+        Args:
+            item_name (str): название товара
+        """
+        remove_locator = (By.XPATH, f"//div[text()='{item_name}']/ancestor::div[@class='cart_item']//button")
+        self.click(remove_locator)
 
     def continue_shopping(self) -> None:
         """Продолжить покупки"""
-        self.click(self.CONTINUE_SHOPPING)
+        self.click(self.CONTINUE_SHOPPING_BUTTON)

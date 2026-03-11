@@ -4,7 +4,7 @@ from .base_page import BasePage
 
 
 class LoginPage(BasePage):
-    \"\"\"Page Object для страницы авторизации\"\"\"
+    """Page Object для страницы авторизации"""
 
     # Локаторы
     USERNAME_INPUT = (By.ID, "user-name")
@@ -15,47 +15,47 @@ class LoginPage(BasePage):
     LOGOUT_LINK = (By.ID, "logout_sidebar_link")
 
     def __init__(self, driver: Any) -> None:
-        \"\"\"
+        """
         Инициализация страницы авторизации
 
         Args:
             driver (Any): WebDriver instance
-        \"\"\"
+        """
         super().__init__(driver)
 
     def login(self, username: str, password: str) -> None:
-        \"\"\"
+        """
         Выполнение входа в систему
 
         Args:
             username (str): имя пользователя
             password (str): пароль
-        \"\"\"
+        """
         self.send_keys(self.USERNAME_INPUT, username)
         self.send_keys(self.PASSWORD_INPUT, password)
         self.click(self.LOGIN_BUTTON)
 
     def get_error_message(self) -> str:
-        \"\"\"
+        """
         Получение текста сообщения об ошибке
 
         Returns:
             str: текст ошибки или пустая строка
-        \"\"\"
+        """
         if self.is_element_present(self.ERROR_MESSAGE):
             return self.get_text(self.ERROR_MESSAGE)
         return ""
 
     def is_login_error_displayed(self) -> bool:
-        \"\"\"
+        """
         Проверка отображения ошибки входа
 
         Returns:
             bool: True если ошибка отображается
-        \"\"\"
+        """
         return self.is_element_present(self.ERROR_MESSAGE)
 
     def logout(self) -> None:
-        \"\"\"Выход из системы\"\"\"
+        """Выход из системы"""
         self.click(self.MENU_BUTTON)
         self.click(self.LOGOUT_LINK)
